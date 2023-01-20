@@ -1,0 +1,16 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<h1>Home Template</h1>
+
+<div>
+    <div>
+        {% for room in rooms %}
+            <h5>{{room.id}} -- {{room.name}}</h5>
+            <!-- Here we are basically iterating through the room list where each item is a dictionary -->
+        
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}
