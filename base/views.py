@@ -2,12 +2,45 @@ from django.shortcuts import render,redirect
 from .models import Room, Topic
 from .forms import RoomForm
 from django.db.models import Q
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 #from django.http import HttpResponse
 
 #template inheritence
 # use {% include 'nav.html' %} over all htmls to inherit its properties
 # now the inheritence part, use main as the structure of the html file with blocks extending the main.html when they are called. 
+
+def loginPage(request):
+
+    if request.method == 'POST':
+        username=request.POST.get('username')
+        password=request.POST.get('password')
+
+        try:  #to check if the user even exists
+            user=User.objects.get(username=username)
+        except:
+            messages.error(request, 'User doesn\'t exist')
+
+        user=authenticate(request, username=username, password=password)  
+
+        if user is not None:
+            login(request, user)  
+            return redirect('home')
+        else:
+            messages.error(request, 'Username or password doesn\'t exist')
+
+
+    context={}
+    return render(request, 'base/login_register.html', context)
+
+def logoutUser(request):
+    #print("Logout Testing")
+    logout(request) #this will basically delete the session id and hence the cookie won't work and will be deleted?
+    return redirect('home')
 
 def home(request): #request object is http object which tells us the kind of request method is sent and the kind of data that is being sent as a request
     #return HttpResponse("Home page")
@@ -43,6 +76,7 @@ def room(request, pk):
 
     return render(request, 'base/room.html', context)
 
+@login_required(login_url='login')
 def createRoom(request):
 
     form = RoomForm()
