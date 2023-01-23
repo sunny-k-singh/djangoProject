@@ -1,0 +1,13 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<!-- remember, there's class based views for forms but we will be using function based views for now-->
+<div>
+    <form method="POST" action="" > <!-- If we don't specify action, it will send it to the current url we are at-->
+        {% csrf_token %}
+        {{form.as_p}} <!--#wrap paragraph tag around every input field-->
+        <input type="submit" value="Submit" />
+    </form>
+</div>
+
+{% endblock content %} 

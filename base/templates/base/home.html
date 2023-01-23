@@ -4,13 +4,24 @@
 <h1>Home Template</h1>
 
 <div>
+    <a href="{% url 'create-room' %}">Create Room</a>
     <div>
         {% for room in rooms %}
-            <h5>{{room.id}} -- {{room.name}}</h5>
+            <a href="{% url 'update-room' room.id %}">Edit</a>
+            <span>@{{room.host.username}}</span> <!--This is basically a query via the foreign key to users table.. simple syntax by django-->
+            <!-- <h5>{{room.id}} -- <a href="/room/{{room.id}}">{{room.name}}</a></h5> -->
+            <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>  
+            <!-- So we are basically using the name of the return path -->
             <!-- Here we are basically iterating through the room list where each item is a dictionary -->
-        
+            <small>{{room.topic.name}}</small>
+            <hr>
         {% endfor %}
     </div>
+        <!-- {% for hous in houses %}
+            <h5>{{hous.id}} -- {{hous.name}}</h5>
+             <!-- Here we are basically iterating through the room list where each item is a dictionary  -->
+
+        <!-- {% endfor %}         -->
 </div>
 
 {% endblock content %}
