@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect
-from .models import Room
+from .models import Room, Topic
 from .forms import RoomForm
+from django.db.models import Q
 # Create your views here.
 #from django.http import HttpResponse
 
@@ -10,8 +11,22 @@ from .forms import RoomForm
 
 def home(request): #request object is http object which tells us the kind of request method is sent and the kind of data that is being sent as a request
     #return HttpResponse("Home page")
-    rooms=Room.objects.all()
-    context = {"rooms":rooms}
+    q=request.GET.get('q')
+
+    if q!=None:
+
+        rooms=Room.objects.filter(
+            Q(topic__name__icontains=q) |
+            Q(name__icontains=q) |
+            Q(description__icontains=q) 
+            #Q(host__name__icontains=q) 
+            
+        )
+    else:
+        rooms=Room.objects.filter()
+    room_count=rooms.count() #slower version is len(rooms) since rooms is basically a list of dictionaries after all
+    topic=Topic.objects.all()
+    context = {"rooms":rooms, "topic": topic, "room_count": room_count}
     return render(request, 'base/home.html', context)
 
 def room(request, pk):
@@ -57,13 +72,13 @@ def updateRoom(request,pk):
     return render(request,'base/room_form.html',context)
 
 def deleteRoom(request,pk):
-    print("delete room views is entered")
+    #print("delete room views is entered")
     room=Room.objects.get(id=pk)
     context={"obj":room}
     if request.method=='POST':
         room.delete()
         return redirect('home')
-    print("control flow just before rendering")    
+    #print("control flow just before rendering")    
     return render(request, 'base/delete.html', context)
 
 

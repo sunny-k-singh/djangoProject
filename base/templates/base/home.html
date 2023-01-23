@@ -1,23 +1,50 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<h1>Home Template</h1>
 
-<div>
-    <a href="{% url 'create-room' %}">Create Room</a>
+<style>
+
+    .home-container{
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+    }
+
+</style>
+
+<div class="home-container">
+
     <div>
-        {% for room in rooms %}
-            <a href="{% url 'delete-room' room.id %}">Delete</a>
-            <a href="{% url 'update-room' room.id %}">Edit</a>
+        <h3>Browse Topics</h3>
+        <hr>
+        <!--{{topic}}-->
+        <div>
+            <a href="{% url 'home' %}">All topics</a>
+        </div>
 
-            <span>@{{room.host.username}}</span> <!--This is basically a query via the foreign key to users table.. simple syntax by django-->
-            <!-- <h5>{{room.id}} -- <a href="/room/{{room.id}}">{{room.name}}</a></h5> -->
-            <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>  
-            <!-- So we are basically using the name of the return path -->
-            <!-- Here we are basically iterating through the room list where each item is a dictionary -->
-            <small>{{room.topic.name}}</small>
-            <hr>
+        {% for topics in topic %}
+        <div>
+            <a href="{% url 'home' %}?q={{topics.name}}">{{topics.name}}</a>
+        </div>
         {% endfor %}
+    </div>
+
+    <div>
+        <h5>{{room_count}} rooms available</h5>
+        <a href="{% url 'create-room' %}">Create Room</a>
+        <div>
+            {% for room in rooms %}
+                <a href="{% url 'delete-room' room.id %}">Delete</a>
+                <a href="{% url 'update-room' room.id %}">Edit</a>
+    
+                <span>@{{room.host.username}}</span> <!--This is basically a query via the foreign key to users table.. simple syntax by django-->
+                <!-- <h5>{{room.id}} -- <a href="/room/{{room.id}}">{{room.name}}</a></h5> -->
+                <h5>{{room.id}} -- <a href="{% url 'room' room.id %}">{{room.name}}</a></h5>  
+                <!-- So we are basically using the name of the return path -->
+                <!-- Here we are basically iterating through the room list where each item is a dictionary -->
+                <small>{{room.topic.name}}</small>
+                <hr>
+            {% endfor %}
+        </div>
     </div>
         <!-- {% for hous in houses %}
             <h5>{{hous.id}} -- {{hous.name}}</h5>
