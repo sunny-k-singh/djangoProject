@@ -11,7 +11,7 @@ from .forms import RoomForm
 def home(request): #request object is http object which tells us the kind of request method is sent and the kind of data that is being sent as a request
     #return HttpResponse("Home page")
     rooms=Room.objects.all()
-    context = {"rooms":rooms, "houses":house}
+    context = {"rooms":rooms}
     return render(request, 'base/home.html', context)
 
 def room(request, pk):
@@ -33,7 +33,7 @@ def createRoom(request):
     form = RoomForm()
     
     if(request.method=='POST'):
-        # print(request.POST)
+      
         form=RoomForm(request.POST) #as far as i understood, the form will extract the values from the request sent by the form.html upon last createRoom call
         if form.is_valid():
             form.save()
@@ -44,16 +44,29 @@ def createRoom(request):
 def updateRoom(request,pk):
 
     room=Room.objects.get(id=pk)
-    form=RoomForm(instance=room)
+    form=RoomForm(instance=room) #form is filled up with the id=pk data in room table.
+    
     if(request.method=='POST'):
-        # print(request.POST)
-        form=RoomForm(request.POST) #as far as i understood, the form will extract the values from the request sent by the form.html upon last createRoom call
+        
+        form=RoomForm(request.POST, instance=room) #as far as i understood, the form will extract the values from the request sent by the form.html upon last createRoom call
         if form.is_valid():
             form.save()
             return redirect('home')   
 
     context={'form':form}
     return render(request,'base/room_form.html',context)
+
+def deleteRoom(request,pk):
+    print("delete room views is entered")
+    room=Room.objects.get(id=pk)
+    context={"obj":room}
+    if request.method=='POST':
+        room.delete()
+        return redirect('home')
+    print("control flow just before rendering")    
+    return render(request, 'base/delete.html', context)
+
+
 
 #def nav(request):
 #    return render(request,'navbar.html')    
@@ -63,8 +76,8 @@ def updateRoom(request,pk):
 #     {'id':2, "name": "let's learn C++"}, 
 #     {'id':3, "name": "let's learn java"}, 
 # ]
-house = [
-    {'id':1, "name": "let's learn pyth"}, 
-    {'id':2, "name": "let's learn C"}, 
-    {'id':3, "name": "let's learn jav"}, 
-]
+# house = [
+#     {'id':1, "name": "let's learn pyth"}, 
+#     {'id':2, "name": "let's learn C"}, 
+#     {'id':3, "name": "let's learn jav"}, 
+# ]
