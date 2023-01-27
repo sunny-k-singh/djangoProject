@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from .models import Room, Topic
+from .models import Room, Topic, Message
 from .forms import RoomForm
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -92,12 +92,17 @@ def room(request, pk):
 
     
     room=Room.objects.get(id=pk) #i don't understand why is integer matching with string.. is it converting internally?
+    texts=room.message_set.all().order_by('created')
+
+    if request.method=='POST':
+        text=Message.objects.create(user=request.user, room=room, body=request.POST.get('text'))
+        return redirect('room', pk=room.id)
     # for i in rooms:
     #     if i.id==int(pk):
     #         room=i        
     #         context={"room":room}
     #The above also woks
-    context={"room":room}
+    context={"room":room,"texts":texts}
 
     return render(request, 'base/room.html', context)
 

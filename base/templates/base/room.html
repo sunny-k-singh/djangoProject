@@ -1,10 +1,30 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<p1>Room Template</p1>
+
 
 <div>
     <h1>The room is : {{room.name}}</h1>
+    <p>{{room.description}}</p>
 </div>
-
+<div class="comment-wrapper">
+    <h3>Conversation</h3>
+    
+    {% for text in texts %}
+    <hr>
+    <div>
+      <small>@{{text.user}} {{text.created | timesince}} ago :: </small>  
+      
+      <p>{{text.body}}</p>
+    </div>
+    {% endfor %}
+</div>
+{% if request.user.is_authenticated %}
+<div class="commentForm">
+    <form method="POST" action="">
+        {% csrf_token %}
+        <input type="text" placeholder="Enter your messege here" name="text" />
+    </form>
+</div>
+{% endif %}
 {% endblock content %}
