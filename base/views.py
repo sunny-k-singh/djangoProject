@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
+from django.contrib.auth.forms import UserCreationForm
 
 # Create your views here.
 #from django.http import HttpResponse
@@ -15,9 +17,11 @@ from django.contrib.auth.decorators import login_required
 # now the inheritence part, use main as the structure of the html file with blocks extending the main.html when they are called. 
 
 def loginPage(request):
-
+    page='login'
+    if request.user.is_authenticated:
+        return redirect('home')
     if request.method == 'POST':
-        username=request.POST.get('username')
+        username=request.POST.get('username').lower()
         password=request.POST.get('password')
 
         try:  #to check if the user even exists
@@ -34,13 +38,34 @@ def loginPage(request):
             messages.error(request, 'Username or password doesn\'t exist')
 
 
-    context={}
+    context={'page':page}
     return render(request, 'base/login_register.html', context)
 
 def logoutUser(request):
     #print("Logout Testing")
     logout(request) #this will basically delete the session id and hence the cookie won't work and will be deleted?
     return redirect('home')
+
+def registerUser(request):
+    page='register'
+    
+    if request.method=='POST':
+        # username=request.POST.get('username')
+        # password=request.POST.get('password')
+        form=UserCreationForm(request.POST)
+        if form.is_valid():
+            user=form.save(commit=False) #we are saving the form but freezing it in time here
+            user.username=user.username.lower()
+            user.save()
+            #login(request,user) #this is for immediate login.. i prefer to send them to login page first
+            return redirect('login')
+        else:
+            messages.error(request, "please enter valid username and password")    
+    
+    
+    form = UserCreationForm()
+    context={'page':page, "form":form}
+    return render(request, 'base/login_register.html', context)
 
 def home(request): #request object is http object which tells us the kind of request method is sent and the kind of data that is being sent as a request
     #return HttpResponse("Home page")
@@ -78,7 +103,7 @@ def room(request, pk):
 
 @login_required(login_url='login')
 def createRoom(request):
-
+    # print("here is the crazy part:",request.headers)
     form = RoomForm()
     
     if(request.method=='POST'):
@@ -90,11 +115,15 @@ def createRoom(request):
     context={'form':form}
     return render(request, 'base/room_form.html',context)   
 
+@login_required(login_url='login')
 def updateRoom(request,pk):
 
     room=Room.objects.get(id=pk)
     form=RoomForm(instance=room) #form is filled up with the id=pk data in room table.
     
+    if request.user != room.host:
+        return HttpResponse("You are not allowed here!!")
+
     if(request.method=='POST'):
         
         form=RoomForm(request.POST, instance=room) #as far as i understood, the form will extract the values from the request sent by the form.html upon last createRoom call
@@ -109,6 +138,8 @@ def deleteRoom(request,pk):
     #print("delete room views is entered")
     room=Room.objects.get(id=pk)
     context={"obj":room}
+    if request.user != room.host:
+        return HttpResponse("You are not allowed here!!")    
     if request.method=='POST':
         room.delete()
         return redirect('home')

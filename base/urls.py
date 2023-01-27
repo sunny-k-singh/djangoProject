@@ -7,6 +7,7 @@ urlpatterns = [
     #path('nav/', views.nav, name="navbar")
     path('login/',views.loginPage,name="login"),
     path('logout/',views.logoutUser,name="logout"),
+    path('register/',views.registerUser,name="register"),
 
 
     path('create-room/',views.createRoom,name="create-room"),
