@@ -76,15 +76,16 @@ def home(request): #request object is http object which tells us the kind of req
         rooms=Room.objects.filter(
             Q(topic__name__icontains=q) |
             Q(name__icontains=q) |
-            Q(description__icontains=q) 
-            #Q(host__name__icontains=q) 
+            Q(description__icontains=q) |
+            Q(host__username__icontains=q) 
             
         )
     else:
         rooms=Room.objects.filter()
     room_count=rooms.count() #slower version is len(rooms) since rooms is basically a list of dictionaries after all
     topic=Topic.objects.all()
-    context = {"rooms":rooms, "topic": topic, "room_count": room_count}
+    room_messages=Message.objects.all().order_by('-created')
+    context = {"rooms":rooms, "topic": topic, "room_count": room_count, 'room_messages':room_messages}
     return render(request, 'base/home.html', context)
 
 def room(request, pk):
@@ -93,16 +94,17 @@ def room(request, pk):
     
     room=Room.objects.get(id=pk) #i don't understand why is integer matching with string.. is it converting internally?
     texts=room.message_set.all().order_by('created')
-
+    participants=room.participants.all()
     if request.method=='POST':
         text=Message.objects.create(user=request.user, room=room, body=request.POST.get('text'))
+        room.participants.add(request.user)
         return redirect('room', pk=room.id)
     # for i in rooms:
     #     if i.id==int(pk):
     #         room=i        
     #         context={"room":room}
     #The above also woks
-    context={"room":room,"texts":texts}
+    context={"room":room,"texts":texts, 'participants':participants}
 
     return render(request, 'base/room.html', context)
 
@@ -151,6 +153,18 @@ def deleteRoom(request,pk):
     #print("control flow just before rendering")    
     return render(request, 'base/delete.html', context)
 
+def deleteMessage(request,pk):
+    #print("delete room views is entered")
+    text=Message.objects.get(id=pk)
+    
+    context={"obj":text}
+    if request.user != text.user:
+        return HttpResponse("You are not allowed here!!")    
+    if request.method=='POST':
+        text.delete()
+        return redirect('home')
+    #print("control flow just before rendering")    
+    return render(request, 'base/delete.html', context)
 
 
 #def nav(request):

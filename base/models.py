@@ -8,7 +8,7 @@ class Room(models.Model):
     topic=models.ForeignKey('Topic', on_delete=models.SET_NULL, null=True) #use the '' inside Topic only if topic is down in the code literally
     name=models.CharField(max_length=200)
     description=models.TextField(null=True, blank=True) #now null is allowed, by default it's false, i.e, null not allowed, Blank means form submitted can be empty
-    #participants=
+    participants=models.ManyToManyField(User, related_name='participants', blank=True)
     updated= models.DateTimeField(auto_now=True)    #takes a snapshot anytime this model.. or table was updated
     created= models.DateTimeField(auto_now_add=True)
     class Meta:

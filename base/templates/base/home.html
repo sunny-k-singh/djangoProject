@@ -6,7 +6,7 @@
 
     .home-container{
         display: grid;
-        grid-template-columns: 1fr 3fr;
+        grid-template-columns: 1fr 2fr 1fr;
     }
 
 </style>
@@ -49,11 +49,19 @@
             {% endfor %}
         </div>
     </div>
-        <!-- {% for hous in houses %}
-            <h5>{{hous.id}} -- {{hous.name}}</h5>
-             <!-- Here we are basically iterating through the room list where each item is a dictionary  -->
-
-        <!-- {% endfor %}         -->
+    <div class="feed">
+        <h3>Recent Activity</h3>
+        <hr>
+        {% for texts in room_messages %}
+        <div>
+            <p>@{{texts.user}}: {{texts.created|timesince}} ago </p>
+            <small>Replied to: <a href="{% url 'room' texts.room.id %}">{{texts.room}}</a></small>
+            <p>{{texts}}</p>
+            <hr>
+        </div>
+        {% endfor %}
+    </div>
+    
 </div>
 
 {% endblock content %}

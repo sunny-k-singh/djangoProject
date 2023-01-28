@@ -2,29 +2,50 @@
 
 {% block content %}
 
-
-<div>
+<style>
+    .roomcontainer{
+        display: grid;
+        grid-template-columns: 3fr 1fr;
+    }
+</style>
+<div class="roomcontainer">
+    <div>
     <h1>The room is : {{room.name}}</h1>
     <p>{{room.description}}</p>
-</div>
-<div class="comment-wrapper">
-    <h3>Conversation</h3>
+
+    <div class="comment-wrapper">
+        <h3>Conversation</h3>
     
-    {% for text in texts %}
-    <hr>
-    <div>
-      <small>@{{text.user}} {{text.created | timesince}} ago :: </small>  
+        {% for text in texts %}
+        <hr>
+        {% if text.user == request.user %}
+        <a href="{% url 'delete' text.id %}">Delete message</a>
+        {% endif %}
+        <div>
+            <small>@{{text.user}} {{text.created | timesince}} ago :: </small>  
       
-      <p>{{text.body}}</p>
-    </div>
+            <p>{{text.body}}</p>
+        </div>
     {% endfor %}
-</div>
-{% if request.user.is_authenticated %}
-<div class="commentForm">
+    </div>
+    {% if request.user.is_authenticated %}
+    <div class="commentForm">
     <form method="POST" action="">
         {% csrf_token %}
         <input type="text" placeholder="Enter your messege here" name="text" />
     </form>
+    </div>
+
+    {% endif %}
+    </div>
+    <div>
+        <h3>Participants</h3>
+        {% for participant in participants %}
+        <div>
+        <p>{{participant.username}}</p>
+        </div>
+        {% endfor %}
+        <hr>
+    </div>
 </div>
-{% endif %}
 {% endblock content %}
