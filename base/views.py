@@ -80,11 +80,15 @@ def home(request): #request object is http object which tells us the kind of req
             Q(host__username__icontains=q) 
             
         )
+        room_messages=Message.objects.filter(Q(room__name__icontains=q)|Q(room__topic__name__icontains=q)|Q(room__host__username__icontains=q)).order_by('-created')
+
     else:
+
         rooms=Room.objects.filter()
+        room_messages=Message.objects.filter().order_by('-created')
     room_count=rooms.count() #slower version is len(rooms) since rooms is basically a list of dictionaries after all
     topic=Topic.objects.all()
-    room_messages=Message.objects.all().order_by('-created')
+    
     context = {"rooms":rooms, "topic": topic, "room_count": room_count, 'room_messages':room_messages}
     return render(request, 'base/home.html', context)
 
@@ -162,7 +166,8 @@ def deleteMessage(request,pk):
         return HttpResponse("You are not allowed here!!")    
     if request.method=='POST':
         text.delete()
-        return redirect('home')
+        return redirect('room', pk=text.room.id)
+        # return render(request,'room/'+str(text.room.id),context)
     #print("control flow just before rendering")    
     return render(request, 'base/delete.html', context)
 
