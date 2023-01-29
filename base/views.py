@@ -112,6 +112,13 @@ def room(request, pk):
 
     return render(request, 'base/room.html', context)
 
+def userProfile(request, pk):
+    person=User.objects.get(id=pk)
+    room_messages=Message.objects.filter(Q(user__username=person.username)).order_by('-created')
+    context={'user':person,'room_messages':room_messages}
+    return render(request,'base/profile.html', context)
+
+
 @login_required(login_url='login')
 def createRoom(request):
     # print("here is the crazy part:",request.headers)
@@ -121,7 +128,9 @@ def createRoom(request):
       
         form=RoomForm(request.POST) #as far as i understood, the form will extract the values from the request sent by the form.html upon last createRoom call
         if form.is_valid():
-            form.save()
+            room=form.save(commit=False)
+            room.host=request.user
+            room.save()
             return redirect('home')
     context={'form':form}
     return render(request, 'base/room_form.html',context)   

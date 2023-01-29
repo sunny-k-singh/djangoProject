@@ -22,7 +22,7 @@
         <a href="{% url 'delete' text.id %}">Delete message</a>
         {% endif %}
         <div>
-            <small>@{{text.user}} {{text.created | timesince}} ago :: </small>  
+            <small>@<a href="{% url 'user' text.user.id %}">{{text.user}}</a> {{text.created | timesince}} ago :: </small>  
       
             <p>{{text.body}}</p>
         </div>
