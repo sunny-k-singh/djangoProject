@@ -1,0 +1,11 @@
+<h1>Welcome to the Topic creation page</h1>
+<form action="" method="POST">
+  {% csrf_token %}
+  <label>New Topic:</label>
+  <input
+    type="text"
+    name="new_topic"
+    id="new_topic"
+    placeholder="Enter topic name"
+  />
+</form>
