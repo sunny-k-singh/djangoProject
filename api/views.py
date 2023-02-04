@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from base.models import Room
-from .serializers import RoomSerialzer
+from .serializers import RoomSerialzer, UserSerializer
 from django.contrib.auth.models import User
 
 
@@ -33,6 +33,12 @@ def getRoom(request, pk):
     roomData = RoomSerialzer(room, many=False).data
     user = room.host.username
     topic = room.topic.name
-    context = {"Room Host": user, "Room Topic": topic, "Room info": roomData}
+    numberParticipants = roomData['participants']
+    participantList = []
+    for participantID in numberParticipants:
+        participantList.append(UserSerializer(
+            User.objects.get(id=participantID)).data["username"])
+    context = {"participants": participantList, "Room Host": user,
+               "Room Topic": topic, "Room info": roomData}
 
     return Response(context)
